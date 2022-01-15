@@ -19,6 +19,8 @@ class ApiUserController extends Controller
         ]);
         $user= User::create([
             'name' =>$request->name,
+            'avater_url'=>$request->has('avater_url') ? $request->avater_url : 'default/avater.jpg',
+            'cover_url'=>$request->has('cover_url') ? $request->cover_url : 'default/cover.jpg',
             'email'=>$request->email,
             'password'=>bcrypt($request->password)
         ]);

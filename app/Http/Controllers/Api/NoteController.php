@@ -13,10 +13,14 @@ class NoteController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            return $this->sendResponse(Note::limit(10)->where('user_id',auth('api')->user()->id)->get(),"List of Notes.");
+            $Note=Note::where('user_id',auth('api')->user()->id);
+            if($request->has('notebook_id')){ 
+                return $Note->where('note_book_id',$request->notebook_id)->get();
+            }
+            return $this->sendResponse($Note->get(),"List of Notes.");
         } catch (\Throwable $th) {
             return $this->sendError("Failed to Fetch Resource.");
         }
@@ -36,6 +40,7 @@ class NoteController extends Controller
             $Note=new Note();
             $request->title ? $Note->title = $request->title :$err[$c++]="Title is empty";
             $request->content ? $Note->content = $request->content :$err[$c++]="Content is empty";
+            $request->note_book_id ? $Note->note_book_id = $request->note_book_id :null;
             $Note->user_id = auth('api')->user()->id;
             if($err==[]){
                 $Note->save();
@@ -71,8 +76,8 @@ class NoteController extends Controller
             $Note=Note::where('user_id',auth('api')->user()->id)->findOrFail($note);
             $request->title ? $Note->title = $request->title :null;
             $request->content ? $Note->content = $request->content :null;
+            $request->note_book_id ? $Note->note_book_id = $request->note_book_id :null;
             $Note->user_id = auth('api')->user()->id;
-            
             $Note->save();
             return $this->sendResponse( $this->process($Note), 'Note record was added successfully.');
         } catch (\Throwable $t) {
